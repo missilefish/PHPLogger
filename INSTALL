@@ -1,0 +1,20 @@
+The log parsing system requires the formats be set below, this is not a how-to but more of a specification. 
+
+VARNISH Log Format (/etc/init.d/varnishncsa):
+
+	logfile="/var/www/virtual/logs/varnishncsa/varnishncsa.log"
+
+	LOG_FORMAT="%h %l %u %{%s}t \"%r\" %s %b \"%{Referer}i\" %{Host}i %{Varnish:time_firstbyte}x %{Varnish:hitmiss}x %{Varnish:handling}x"
+	DAEMON_OPTS="-c -a -w $logfile -D -P $pidfile -F '${LOG_FORMAT}'"
+
+
+NGINX Log Format:
+
+        log_format  main  '$connection $server_name $status $remote_addr [$time_iso8601] "$request" '
+                          '$body_bytes_sent $bytes_sent $request_time "$http_referer" '
+                          '"$gzip_ratio"';
+
+My preference is to combine all VHOSTS into a single NGINX Log. Keep in mind this system will WIPE the log file every time it is processed, so depending on the size it could grow every 5 minutes (or frequency you process it) cosnider that it will be wiped to a zero size. 
+	access_log  /var/www/virtual/logs/access.log main;
+        error_log   /var/www/virtual/logs/error/error.log error;
+
